@@ -4,12 +4,12 @@
 
 Gerador simples de README.md para projetos que precisam de documentação limpa, rápida e sem cara de texto automático.
 
-[![License](https://img.shields.io/github/license/dudadepb6/readme-maker?style=flat-square\&color=1769e0)](LICENSE)
-[![Stars](https://img.shields.io/github/stars/dudadepb6/readme-maker?style=flat-square\&color=1769e0)](https://github.com/dudadepb6/readme-maker/stargazers)
+[![License](https://img.shields.io/github/license/Guto-Edu/README_Maker?style=flat-square&color=1769e0)](LICENSE)
+[![Stars](https://img.shields.io/github/stars/Guto-Edu/README_Maker?style=flat-square&color=1769e0)](https://github.com/Guto-Edu/README_Maker/stargazers)
 ![Status](https://img.shields.io/badge/status-em%20desenvolvimento-1769e0?style=flat-square)
 ![Feito com](https://img.shields.io/badge/feito%20com-HTML%2C%20CSS%20e%20JS-0b57c0?style=flat-square)
 
-[Ver projeto online](https://dudadepb6.github.io/readme-maker/) · [Repositório](https://github.com/dudadepb6/readme-maker)
+[Ver projeto online](https://guto-edu.github.io/README_Maker/) · [Repositório](https://github.com/Guto-Edu/README_Maker)
 
 </div>
 
