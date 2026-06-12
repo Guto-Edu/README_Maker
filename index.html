@@ -1,0 +1,1777 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gerador de README.md</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #eef5ff;
+      --bg-soft: #f7fbff;
+      --surface: #ffffff;
+      --surface-2: #f8fbff;
+      --surface-3: #eef6ff;
+
+      --text: #102033;
+      --text-soft: #4f6178;
+      --text-muted: #7b8ca3;
+
+      --blue: #1769e0;
+      --blue-2: #0b57c0;
+      --blue-soft: #e7f0ff;
+      --blue-ring: rgba(23, 105, 224, .16);
+
+      --green: #168344;
+      --green-soft: #e9f9ef;
+
+      --danger: #b42318;
+      --danger-soft: #fff0ee;
+
+      --border: #d9e5f4;
+      --border-strong: #bdd3ee;
+
+      --shadow: 0 18px 50px rgba(16, 32, 51, .08);
+      --shadow-sm: 0 8px 24px rgba(16, 32, 51, .06);
+
+      --radius-xs: 8px;
+      --radius-sm: 12px;
+      --radius-md: 18px;
+      --radius-lg: 24px;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top left, rgba(23, 105, 224, .14), transparent 30rem),
+        linear-gradient(180deg, var(--bg) 0%, var(--bg-soft) 42%, #fff 100%);
+      color: var(--text);
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    button,
+    input,
+    textarea,
+    select {
+      font: inherit;
+    }
+
+    button {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .page {
+      width: min(1180px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 34px 0 42px;
+    }
+
+    .intro {
+      margin-bottom: 22px;
+      display: grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .intro-main,
+    .intro-note {
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, .78);
+      backdrop-filter: blur(14px);
+      box-shadow: var(--shadow-sm);
+      border-radius: var(--radius-lg);
+    }
+
+    .intro-main {
+      padding: 28px;
+    }
+
+    .eyebrow {
+      width: fit-content;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--blue);
+      background: var(--blue-soft);
+      border: 1px solid #cfe0fb;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 6px 11px;
+      margin-bottom: 14px;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--blue);
+      box-shadow: 0 0 0 5px rgba(23, 105, 224, .12);
+    }
+
+    h1 {
+      font-size: clamp(27px, 4vw, 42px);
+      letter-spacing: -.04em;
+      line-height: 1.05;
+      margin-bottom: 12px;
+    }
+
+    .intro-main p {
+      max-width: 690px;
+      color: var(--text-soft);
+      font-size: 15px;
+    }
+
+    .intro-note {
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 14px;
+    }
+
+    .note-title {
+      font-weight: 700;
+      letter-spacing: -.02em;
+      font-size: 16px;
+    }
+
+    .note-list {
+      list-style: none;
+      display: grid;
+      gap: 10px;
+      color: var(--text-soft);
+    }
+
+    .note-list li {
+      display: grid;
+      grid-template-columns: 22px 1fr;
+      gap: 8px;
+      align-items: start;
+    }
+
+    .note-list span {
+      width: 22px;
+      height: 22px;
+      display: inline-grid;
+      place-items: center;
+      border-radius: 8px;
+      background: var(--blue-soft);
+      color: var(--blue);
+      font-weight: 800;
+      font-size: 12px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 22px;
+      align-items: start;
+    }
+
+    .form-stack {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      align-items: start;
+    }
+
+    .form-stack .panel:nth-of-type(3),
+    .form-stack .panel:nth-of-type(4),
+    .form-stack .actions {
+      grid-column: 1 / -1;
+    }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+
+    .panel-head {
+      padding: 17px 18px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, #fff 0%, var(--surface-2) 100%);
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .panel-title {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      min-width: 0;
+    }
+
+    .panel-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      background: var(--blue-soft);
+      color: var(--blue);
+      flex: 0 0 auto;
+    }
+
+    .panel-icon svg {
+      width: 18px;
+      height: 18px;
+      fill: currentColor;
+    }
+
+    .panel-title h2 {
+      font-size: 15px;
+      line-height: 1.2;
+      letter-spacing: -.02em;
+    }
+
+    .panel-title p {
+      margin-top: 3px;
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+
+    .panel-body {
+      padding: 18px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .field {
+      margin-bottom: 14px;
+    }
+
+    .field:last-child {
+      margin-bottom: 0;
+    }
+
+    label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      color: var(--text-soft);
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .hint {
+      color: var(--text-muted);
+      font-weight: 500;
+      font-size: 11px;
+    }
+
+    .req {
+      color: var(--blue);
+      margin-left: 2px;
+    }
+
+    input[type="text"],
+    input[type="url"],
+    select,
+    textarea {
+      width: 100%;
+      min-height: 40px;
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--text);
+      border-radius: var(--radius-sm);
+      outline: none;
+      padding: 10px 12px;
+      transition: border-color .16s, box-shadow .16s, background .16s;
+    }
+
+    textarea {
+      min-height: 92px;
+      resize: vertical;
+      line-height: 1.55;
+    }
+
+    input:hover,
+    select:hover,
+    textarea:hover {
+      border-color: var(--border-strong);
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 4px var(--blue-ring);
+    }
+
+    input::placeholder,
+    textarea::placeholder {
+      color: #9aa9bb;
+    }
+
+    select {
+      cursor: pointer;
+      appearance: none;
+      padding-right: 34px;
+      background-image: url("data:image/svg+xml,%3Csvg width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%234f6178' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--text-soft);
+      border-radius: 999px;
+      padding: 7px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      user-select: none;
+      transition: background .16s, border-color .16s, color .16s, transform .16s;
+    }
+
+    .chip:hover {
+      border-color: var(--blue);
+      color: var(--blue);
+      background: var(--blue-soft);
+    }
+
+    .chip:active {
+      transform: scale(.98);
+    }
+
+    .chip input {
+      display: none;
+    }
+
+    .chip-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      border: 2px solid currentColor;
+      background: transparent;
+    }
+
+    .chip.active {
+      color: var(--blue);
+      border-color: #b9d1f6;
+      background: var(--blue-soft);
+    }
+
+    .chip.active .chip-dot {
+      background: currentColor;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 18px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .actions .btn-primary {
+      min-width: 180px;
+    }
+
+    .btn {
+      min-height: 40px;
+      border: 1px solid transparent;
+      border-radius: 13px;
+      padding: 10px 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      font-weight: 800;
+      font-size: 13px;
+      transition: transform .16s, box-shadow .16s, background .16s, border-color .16s, color .16s;
+    }
+
+    .btn svg {
+      width: 16px;
+      height: 16px;
+      fill: currentColor;
+    }
+
+    .btn-primary {
+      color: #fff;
+      background: linear-gradient(135deg, var(--blue), #3385ff);
+      box-shadow: 0 12px 26px rgba(23, 105, 224, .26);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 16px 34px rgba(23, 105, 224, .32);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+      box-shadow: none;
+    }
+
+    .btn-soft {
+      color: var(--blue);
+      background: var(--blue-soft);
+      border-color: #cfe0fb;
+    }
+
+    .btn-soft:hover {
+      background: #dceaff;
+    }
+
+    .btn-ghost {
+      color: var(--text-soft);
+      background: #fff;
+      border-color: var(--border);
+    }
+
+    .btn-ghost:hover {
+      border-color: var(--border-strong);
+      background: var(--surface-2);
+      color: var(--text);
+    }
+
+    .btn-danger {
+      color: var(--danger);
+      background: var(--danger-soft);
+      border-color: #ffd2cb;
+    }
+
+    .btn-danger:hover {
+      background: #ffe6e2;
+    }
+
+    .output {
+      position: relative;
+      width: 100%;
+      scroll-margin-top: 18px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .output-head {
+      padding: 14px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, #fff 0%, var(--surface-2) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .output-title {
+      min-width: 0;
+    }
+
+    .output-title strong {
+      display: block;
+      font-size: 14px;
+      letter-spacing: -.02em;
+    }
+
+    .output-title span {
+      display: block;
+      margin-top: 2px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .tabs {
+      display: inline-flex;
+      padding: 4px;
+      border-radius: 999px;
+      background: var(--surface-3);
+      border: 1px solid #d4e6ff;
+      flex: 0 0 auto;
+    }
+
+    .tab {
+      border: 0;
+      background: transparent;
+      color: var(--text-soft);
+      padding: 7px 10px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .tab.active {
+      background: #fff;
+      color: var(--blue);
+      box-shadow: 0 4px 12px rgba(16, 32, 51, .08);
+    }
+
+    .output-tools {
+      padding: 12px 14px;
+      display: flex;
+      gap: 8px;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+
+    .empty {
+      padding: 28px 20px 34px;
+      text-align: center;
+      color: var(--text-muted);
+    }
+
+    .empty-icon {
+      width: 52px;
+      height: 52px;
+      display: grid;
+      place-items: center;
+      margin: 0 auto 12px;
+      border-radius: 18px;
+      background: var(--blue-soft);
+      color: var(--blue);
+      font-size: 22px;
+    }
+
+    .empty strong {
+      display: block;
+      color: var(--text);
+      margin-bottom: 4px;
+      letter-spacing: -.02em;
+    }
+
+    .code-area {
+      display: none;
+      padding: 16px;
+    }
+
+    .preview-area {
+      display: none;
+      padding: 24px;
+      max-height: none;
+      overflow: visible;
+    }
+
+    .code-area.active,
+    .preview-area.active {
+      display: block;
+    }
+
+    pre {
+      max-height: 760px;
+      overflow: auto;
+      border-radius: 16px;
+      border: 1px solid #1e2b3d;
+      background: #0f1b2d;
+      color: #eaf2ff;
+      padding: 18px;
+      font-family: "JetBrains Mono", Consolas, monospace;
+      font-size: 13px;
+      line-height: 1.78;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .preview {
+      color: #18283a;
+      font-size: 14px;
+      line-height: 1.72;
+    }
+
+    .preview h1 {
+      font-size: 27px;
+      line-height: 1.15;
+      margin: 0 0 10px;
+      letter-spacing: -.03em;
+    }
+
+    .preview h2 {
+      font-size: 20px;
+      margin: 26px 0 8px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+      letter-spacing: -.02em;
+    }
+
+    .preview h3 {
+      font-size: 16px;
+      margin: 18px 0 7px;
+      letter-spacing: -.01em;
+    }
+
+    .preview p {
+      margin: 9px 0;
+    }
+
+    .preview ul,
+    .preview ol {
+      padding-left: 22px;
+      margin: 8px 0 12px;
+    }
+
+    .preview li {
+      margin: 4px 0;
+    }
+
+    .preview code {
+      background: var(--surface-3);
+      border: 1px solid var(--border);
+      color: #0b57c0;
+      padding: 2px 6px;
+      border-radius: 7px;
+      font-family: "JetBrains Mono", Consolas, monospace;
+      font-size: 12px;
+    }
+
+    .preview pre {
+      max-height: none;
+      margin: 10px 0 14px;
+      white-space: pre;
+    }
+
+    .preview pre code {
+      border: 0;
+      background: transparent;
+      color: inherit;
+      padding: 0;
+    }
+
+    .preview a {
+      color: var(--blue);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .preview a:hover {
+      text-decoration: underline;
+    }
+
+    .preview img {
+      max-height: 26px;
+      vertical-align: middle;
+      margin: 2px 3px;
+    }
+
+    .preview blockquote {
+      border-left: 4px solid var(--border-strong);
+      color: var(--text-soft);
+      margin: 12px 0;
+      padding: 7px 12px;
+      background: var(--surface-2);
+      border-radius: 0 12px 12px 0;
+    }
+
+    .preview .center {
+      text-align: center;
+    }
+
+    .profile-card {
+      margin-top: 16px;
+      padding: 18px;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .profile-row {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+    }
+
+    .avatar {
+      width: 46px;
+      height: 46px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--blue-soft), #fff);
+      border: 1px solid var(--border);
+      color: var(--blue);
+      font-weight: 900;
+      font-size: 18px;
+      overflow: hidden;
+      flex: 0 0 auto;
+    }
+
+    .avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+    }
+
+    .profile-row strong {
+      display: block;
+      line-height: 1.2;
+    }
+
+    .profile-row span {
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+
+    .profile-card p {
+      color: var(--text-soft);
+      font-size: 12px;
+      margin-top: 12px;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 22px;
+      transform: translateX(-50%) translateY(30px);
+      opacity: 0;
+      background: #102033;
+      color: #fff;
+      border-radius: 999px;
+      padding: 11px 16px;
+      font-weight: 800;
+      font-size: 13px;
+      box-shadow: 0 18px 40px rgba(16, 32, 51, .24);
+      transition: transform .24s, opacity .24s;
+      z-index: 20;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    .small-print {
+      width: min(1180px, calc(100% - 28px));
+      margin: 18px auto 0;
+      color: var(--text-muted);
+      font-size: 12px;
+      text-align: center;
+    }
+
+    @media (max-width: 1020px) {
+      .intro,
+      .layout,
+      .form-stack {
+        grid-template-columns: 1fr;
+      }
+
+      .form-stack .panel:nth-of-type(3),
+      .form-stack .panel:nth-of-type(4),
+      .form-stack .actions {
+        grid-column: auto;
+      }
+
+      .output {
+        position: relative;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .page {
+        width: min(100% - 20px, 1180px);
+        padding-top: 18px;
+      }
+
+      .intro-main,
+      .intro-note,
+      .panel-body,
+      .panel-head,
+      .actions {
+        padding: 15px;
+      }
+
+      .grid-2,
+      .grid-3 {
+        grid-template-columns: 1fr;
+      }
+
+      .output-head {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .tabs {
+        width: 100%;
+      }
+
+      .tab {
+        flex: 1;
+      }
+
+      .btn {
+        width: 100%;
+      }
+
+      .toast {
+        width: calc(100% - 28px);
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+
+
+    <section class="layout">
+      <div class="form-stack">
+        <section class="panel">
+          <div class="panel-head">
+            <div class="panel-title">
+              <div class="panel-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4a2 2 0 0 1 2-2h8l6 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4Zm10 1.5V9h3.5L14 5.5ZM7 13h10v-1.8H7V13Zm0 4h10v-1.8H7V17Zm0-8h5V7.2H7V9Z"/></svg>
+              </div>
+              <div>
+                <h2>Base do projeto</h2>
+                <p>Nome, descrição e identidade do README.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel-body">
+            <div class="grid-2">
+              <div class="field">
+                <label for="projectName">Nome do projeto <span class="req">*</span></label>
+                <input id="projectName" type="text" placeholder="vision-manager" autocomplete="off" />
+              </div>
+
+              <div class="field">
+                <label for="githubUser">Usuário GitHub <span class="req">*</span></label>
+                <input id="githubUser" type="text" placeholder="seu-usuario" autocomplete="off" />
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="tagline">Frase curta <span class="req">*</span></label>
+              <input id="tagline" type="text" placeholder="Sistema simples para controlar ordens de serviço em óticas." />
+            </div>
+
+            <div class="field">
+              <label for="description">
+                Sobre o projeto
+                <span class="hint">2 a 5 linhas ficam perfeitas</span>
+              </label>
+              <textarea id="description" placeholder="Explique o que o projeto faz, para quem ele foi pensado e qual problema resolve. Sem exagerar no marketing: README bom é claro, não grita."></textarea>
+            </div>
+
+            <div class="grid-3">
+              <div class="field">
+                <label for="projectType">Tipo</label>
+                <select id="projectType">
+                  <option value="web">Aplicação web</option>
+                  <option value="api">API / Backend</option>
+                  <option value="mobile">Mobile</option>
+                  <option value="lib">Biblioteca / Package</option>
+                  <option value="cli">CLI</option>
+                  <option value="docs">Documentação</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="status">Status</label>
+                <select id="status">
+                  <option value="development">Em desenvolvimento</option>
+                  <option value="stable">Estável</option>
+                  <option value="paused">Pausado</option>
+                  <option value="archived">Arquivado</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="license">Licença</label>
+                <select id="license">
+                  <option value="MIT">MIT</option>
+                  <option value="Apache-2.0">Apache 2.0</option>
+                  <option value="GPL-3.0">GPL 3.0</option>
+                  <option value="BSD-3-Clause">BSD 3-Clause</option>
+                  <option value="">Sem licença</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="field">
+                <label for="version">Versão</label>
+                <input id="version" type="text" placeholder="1.0.0" />
+              </div>
+
+              <div class="field">
+                <label for="demoUrl">Demo / produção</label>
+                <input id="demoUrl" type="url" placeholder="https://meu-projeto.vercel.app" />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div class="panel-title">
+              <div class="panel-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9.4 16.6-4.6-4.6 4.6-4.6L8 6l-6 6 6 6 1.4-1.4Zm5.2 0 4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4ZM11 20h2l2-16h-2l-2 16Z"/></svg>
+              </div>
+              <div>
+                <h2>Stack e comandos</h2>
+                <p>O básico para alguém rodar o projeto sem te chamar no WhatsApp.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel-body">
+            <div class="field">
+              <label for="techs">Tecnologias <span class="hint">separe por vírgula</span></label>
+              <input id="techs" type="text" placeholder="Next.js, TypeScript, Tailwind CSS, Supabase" />
+            </div>
+
+            <div class="grid-2">
+              <div class="field">
+                <label for="packageManager">Gerenciador</label>
+                <select id="packageManager">
+                  <option value="npm">npm</option>
+                  <option value="yarn">yarn</option>
+                  <option value="pnpm">pnpm</option>
+                  <option value="bun">bun</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="prerequisites">Pré-requisitos</label>
+                <input id="prerequisites" type="text" value="Node.js 18+" />
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="field">
+                <label for="installCmd">Instalar</label>
+                <input id="installCmd" type="text" value="npm install" />
+              </div>
+
+              <div class="field">
+                <label for="devCmd">Rodar local</label>
+                <input id="devCmd" type="text" value="npm run dev" />
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="field">
+                <label for="buildCmd">Build</label>
+                <input id="buildCmd" type="text" value="npm run build" />
+              </div>
+
+              <div class="field">
+                <label for="testCmd">Testes</label>
+                <input id="testCmd" type="text" placeholder="npm run test" />
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="envVars">Variáveis de ambiente <span class="hint">uma por linha</span></label>
+              <textarea id="envVars" placeholder="NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+DATABASE_URL="></textarea>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div class="panel-title">
+              <div class="panel-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 3 7v10l9 5 9-5V7l-9-5Zm0 2.3L18.7 8 12 11.7 5.3 8 12 4.3ZM5 9.8l6 3.3v6.5l-6-3.3V9.8Zm14 0v6.5l-6 3.3v-6.5l6-3.3Z"/></svg>
+              </div>
+              <div>
+                <h2>Conteúdo</h2>
+                <p>Seção genérica demais é onde o README começa a virar robô.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel-body">
+            <div class="field">
+              <label for="features">Funcionalidades <span class="hint">uma por linha</span></label>
+              <textarea id="features" placeholder="Cadastro e edição de clientes
+Controle de status das ordens de serviço
+Filtros por data, status e pagamento"></textarea>
+            </div>
+
+            <div class="field">
+              <label for="usage">Como usar</label>
+              <textarea id="usage" placeholder="Depois de rodar o projeto, acesse a tela inicial e faça login com seu usuário. Ajuste esse texto para o fluxo real do sistema."></textarea>
+            </div>
+
+            <div class="field">
+              <label for="structure">Estrutura do projeto <span class="hint">opcional</span></label>
+              <textarea id="structure" placeholder="src/
+  app/
+  components/
+  lib/
+  styles/"></textarea>
+            </div>
+
+            <div class="field">
+              <label for="roadmap">Roadmap <span class="hint">uma por linha</span></label>
+              <textarea id="roadmap" placeholder="Dashboard com métricas
+Exportação em CSV
+Permissões por perfil"></textarea>
+            </div>
+
+            <div class="field">
+              <label>Seções para incluir</label>
+              <div class="chips">
+                <label class="chip active"><input id="secFeatures" type="checkbox" checked><span class="chip-dot"></span>Features</label>
+                <label class="chip active"><input id="secInstall" type="checkbox" checked><span class="chip-dot"></span>Instalação</label>
+                <label class="chip active"><input id="secEnv" type="checkbox" checked><span class="chip-dot"></span>.env</label>
+                <label class="chip active"><input id="secUsage" type="checkbox" checked><span class="chip-dot"></span>Uso</label>
+                <label class="chip"><input id="secStructure" type="checkbox"><span class="chip-dot"></span>Estrutura</label>
+                <label class="chip"><input id="secScreens" type="checkbox"><span class="chip-dot"></span>Screenshots</label>
+                <label class="chip"><input id="secTests" type="checkbox"><span class="chip-dot"></span>Testes</label>
+                <label class="chip"><input id="secRoadmap" type="checkbox"><span class="chip-dot"></span>Roadmap</label>
+                <label class="chip active"><input id="secContrib" type="checkbox" checked><span class="chip-dot"></span>Contribuição</label>
+                <label class="chip active"><input id="secAuthor" type="checkbox" checked><span class="chip-dot"></span>Autor</label>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div class="panel-title">
+              <div class="panel-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10a2 2 0 0 1 2 2v14l-7-3-7 3V5a2 2 0 0 1 2-2Zm0 2v11l5-2.2 5 2.2V5H7Zm2 3h6v2H9V8Zm0 3h6v2H9v-2Z"/></svg>
+              </div>
+              <div>
+                <h2>Badges e autoria</h2>
+                <p>Use só o necessário. Badge demais vira carnaval de escudo.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel-body">
+            <div class="field">
+              <label>Badges</label>
+              <div class="chips">
+                <label class="chip active"><input id="badgeLicense" type="checkbox" checked><span class="chip-dot"></span>Licença</label>
+                <label class="chip active"><input id="badgeStars" type="checkbox" checked><span class="chip-dot"></span>Stars</label>
+                <label class="chip"><input id="badgeForks" type="checkbox"><span class="chip-dot"></span>Forks</label>
+                <label class="chip"><input id="badgeIssues" type="checkbox"><span class="chip-dot"></span>Issues</label>
+                <label class="chip"><input id="badgeLastCommit" type="checkbox"><span class="chip-dot"></span>Último commit</label>
+                <label class="chip"><input id="badgeVersion" type="checkbox"><span class="chip-dot"></span>Versão</label>
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="field">
+                <label for="authorName">Nome do autor</label>
+                <input id="authorName" type="text" placeholder="Seu nome" />
+              </div>
+
+              <div class="field">
+                <label for="authorRole">Descrição curta</label>
+                <input id="authorRole" type="text" placeholder="Desenvolvedor(a) do projeto" />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div class="actions">
+          <button class="btn btn-primary" type="button" id="generateBtn">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h14a2 2 0 0 1 2 2v6h-2V5H5v14h6v2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm3 4h8v2H8V7Zm0 4h6v2H8v-2Zm9 2v3h3v2h-3v3h-2v-3h-3v-2h3v-3h2Z"/></svg>
+            Gerar README
+          </button>
+
+          <button class="btn btn-soft" type="button" id="saveBtn">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7l-4-4ZM5 5h11.2L19 7.8V19H5V5Zm2 2h8v5H7V7Zm2 2v1h4V9H9Zm-2 6h10v2H7v-2Z"/></svg>
+            Salvar rascunho
+          </button>
+
+          <button class="btn btn-danger" type="button" id="clearBtn">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6l1 2h5v2H3V5h5l1-2Zm1 6h2v8h-2V9Zm4 0h2v8h-2V9ZM6 9h2v10h8V9h2v10a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V9Z"/></svg>
+            Limpar
+          </button>
+        </div>
+      </div>
+
+      <aside class="output" id="outputSection" aria-label="Saída do README">
+        <div class="output-head">
+          <div class="output-title">
+            <strong>Resultado</strong>
+            <span>Markdown e prévia do README.md</span>
+          </div>
+
+          <div class="tabs">
+            <button class="tab active" type="button" data-tab="markdown">Markdown</button>
+            <button class="tab" type="button" data-tab="preview">Preview</button>
+          </div>
+        </div>
+
+        <div class="output-tools">
+          <button class="btn btn-soft" type="button" id="copyBtn">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 1H4a2 2 0 0 0-2 2v14h2V3h12V1Zm3 4H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2Zm0 16H8V7h11v14Z"/></svg>
+            Copiar
+          </button>
+
+          <button class="btn btn-ghost" type="button" id="downloadBtn">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20h14v-2H5v2ZM13 4h-2v8.2L7.4 8.6 6 10l6 6 6-6-1.4-1.4-3.6 3.6V4Z"/></svg>
+            Baixar .md
+          </button>
+        </div>
+
+        <div id="emptyState" class="empty">
+          <div class="empty-icon">md</div>
+          <strong>Nada gerado ainda</strong>
+          <p>Preencha a base e clique em “Gerar README”.</p>
+        </div>
+
+        <div id="codeArea" class="code-area">
+          <pre id="markdownOutput"></pre>
+        </div>
+
+        <div id="previewArea" class="preview-area">
+          <div id="previewOutput" class="preview"></div>
+        </div>
+
+        <div class="profile-card">
+          <div class="profile-row">
+            <div class="avatar" id="profileAvatar">
+              <span id="avatarFallback">GH</span>
+              <img id="avatarImg" alt="Avatar do GitHub" />
+            </div>
+            <div>
+              <strong id="profileName">Perfil do README</strong>
+              <span id="profileMeta">Preencha seu usuário do GitHub para visualizar.</span>
+            </div>
+          </div>
+          <p>
+            O bloco de autoria continua simples: avatar, link do GitHub e descrição curta.
+            Bonito sem virar outdoor.
+          </p>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <p class="small-print">
+    README bom é simples: explica, instala e passa confiança.
+  </p>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const requiredFields = ["projectName", "githubUser", "tagline"];
+    let generatedMarkdown = "";
+    let activeTab = "markdown";
+
+    const commandPresets = {
+      npm:  { install: "npm install", dev: "npm run dev", build: "npm run build", test: "npm run test" },
+      yarn: { install: "yarn", dev: "yarn dev", build: "yarn build", test: "yarn test" },
+      pnpm: { install: "pnpm install", dev: "pnpm dev", build: "pnpm build", test: "pnpm test" },
+      bun:  { install: "bun install", dev: "bun dev", build: "bun run build", test: "bun test" }
+    };
+
+    const projectStatus = {
+      development: "Em desenvolvimento",
+      stable: "Estável",
+      paused: "Pausado",
+      archived: "Arquivado"
+    };
+
+    const projectTypes = {
+      web: "Aplicação web",
+      api: "API / Backend",
+      mobile: "Mobile",
+      lib: "Biblioteca / Package",
+      cli: "CLI",
+      docs: "Documentação"
+    };
+
+    function value(id) {
+      return ($(id).value || "").trim();
+    }
+
+    function checked(id) {
+      return $(id).checked;
+    }
+
+    function slugify(text) {
+      return (text || "")
+        .trim()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9._-]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+    }
+
+    function splitLines(text) {
+      return (text || "")
+        .split("\n")
+        .map((line) => line.trim())
+        .filter(Boolean);
+    }
+
+    function splitComma(text) {
+      return (text || "")
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean);
+    }
+
+    function mdList(items, fallback) {
+      const list = items.length ? items : fallback;
+      return list.map((item) => `- ${item}`).join("\n");
+    }
+
+    function fenced(language, content) {
+      return `\`\`\`${language}\n${content.trim()}\n\`\`\``;
+    }
+
+    function badgeMarkdown({ label, message, color = "1769e0" }) {
+      const encodedLabel = encodeURIComponent(label);
+      const encodedMessage = encodeURIComponent(message);
+      return `![${label}](https://img.shields.io/badge/${encodedLabel}-${encodedMessage}-${color}?style=flat-square)`;
+    }
+
+    function githubBadge(kind, user, repo, color = "1769e0") {
+      const base = "https://img.shields.io/github";
+      const urlRepo = `${user}/${repo}`;
+
+      const map = {
+        license: `[![License](${base}/license/${urlRepo}?style=flat-square&color=${color})](LICENSE)`,
+        stars: `[![Stars](${base}/stars/${urlRepo}?style=flat-square&color=${color})](https://github.com/${urlRepo}/stargazers)`,
+        forks: `[![Forks](${base}/forks/${urlRepo}?style=flat-square&color=${color})](https://github.com/${urlRepo}/forks)`,
+        issues: `[![Issues](${base}/issues/${urlRepo}?style=flat-square&color=${color})](https://github.com/${urlRepo}/issues)`,
+        lastCommit: `[![Last Commit](${base}/last-commit/${urlRepo}?style=flat-square&color=${color})](https://github.com/${urlRepo}/commits)`
+      };
+
+      return map[kind] || "";
+    }
+
+    function getFormData() {
+      const nameRaw = value("projectName");
+      const repo = slugify(nameRaw);
+      const user = value("githubUser").replace(/^@/, "");
+      const author = value("authorName") || user;
+      const authorRole = value("authorRole");
+      const license = value("license");
+      const version = value("version");
+      const demoUrl = value("demoUrl");
+      const packageManager = value("packageManager");
+
+      return {
+        nameRaw,
+        repo,
+        user,
+        tagline: value("tagline"),
+        description: value("description"),
+        projectType: value("projectType"),
+        status: value("status"),
+        license,
+        version,
+        demoUrl,
+        packageManager,
+        techs: splitComma(value("techs")),
+        prerequisites: value("prerequisites") || "Node.js 18+",
+        installCmd: value("installCmd") || commandPresets[packageManager].install,
+        devCmd: value("devCmd") || commandPresets[packageManager].dev,
+        buildCmd: value("buildCmd") || commandPresets[packageManager].build,
+        testCmd: value("testCmd"),
+        envVars: value("envVars"),
+        features: splitLines(value("features")),
+        usage: value("usage"),
+        structure: value("structure"),
+        roadmap: splitLines(value("roadmap")),
+        author,
+        authorRole
+      };
+    }
+
+    function validate() {
+      const missing = requiredFields.filter((id) => !value(id));
+      requiredFields.forEach((id) => {
+        $(id).style.borderColor = missing.includes(id) ? "var(--danger)" : "";
+      });
+
+      if (missing.length) {
+        showToast("Preencha nome do projeto, GitHub e frase curta.");
+        return false;
+      }
+
+      return true;
+    }
+
+    function generateReadme() {
+      if (!validate()) return;
+
+      const data = getFormData();
+      const title = data.nameRaw || data.repo;
+      const repoUrl = `https://github.com/${data.user}/${data.repo}`;
+
+      const badges = [];
+      if (checked("badgeLicense") && data.license) badges.push(githubBadge("license", data.user, data.repo));
+      if (checked("badgeStars")) badges.push(githubBadge("stars", data.user, data.repo));
+      if (checked("badgeForks")) badges.push(githubBadge("forks", data.user, data.repo));
+      if (checked("badgeIssues")) badges.push(githubBadge("issues", data.user, data.repo));
+      if (checked("badgeLastCommit")) badges.push(githubBadge("lastCommit", data.user, data.repo));
+      if (checked("badgeVersion") && data.version) badges.push(badgeMarkdown({ label: "version", message: data.version, color: "0b57c0" }));
+
+      const sections = [];
+
+      sections.push(`<div align="center">
+
+# ${title}
+
+${data.tagline}
+
+${badges.length ? badges.join(" ") + "\n" : ""}
+${data.demoUrl ? `[Ver projeto online](${data.demoUrl}) · ` : ""}[Repositório](${repoUrl})
+
+</div>`);
+
+      sections.push(`## Sobre
+
+${data.description || data.tagline}
+
+- **Tipo:** ${projectTypes[data.projectType] || data.projectType}
+- **Status:** ${projectStatus[data.status] || data.status}${data.version ? `\n- **Versão:** ${data.version}` : ""}`);
+
+      if (data.techs.length) {
+        sections.push(`## Stack
+
+${mdList(data.techs, [])}`);
+      }
+
+      if (checked("secFeatures")) {
+        sections.push(`## Funcionalidades
+
+${mdList(data.features, [
+  "Fluxo principal do projeto já estruturado",
+  "Base pronta para evoluir sem bagunçar o código",
+  "Organização pensada para manutenção"
+])}`);
+      }
+
+      if (checked("secScreens")) {
+        sections.push(`## Screenshots
+
+Adicione aqui imagens reais do projeto.
+
+${fenced("", "![Tela inicial](./docs/screenshot.png)")}`);
+      }
+
+      if (checked("secInstall")) {
+        sections.push(`## Rodando localmente
+
+**Pré-requisitos**
+
+- ${data.prerequisites}
+
+**Clone o projeto**
+
+${fenced("bash", `git clone ${repoUrl}.git
+cd ${data.repo}`)}
+
+**Instale as dependências**
+
+${fenced("bash", data.installCmd)}
+
+**Inicie o ambiente de desenvolvimento**
+
+${fenced("bash", data.devCmd)}`);
+      }
+
+      if (checked("secEnv") && data.envVars) {
+        sections.push(`## Variáveis de ambiente
+
+Crie um arquivo \`.env\` na raiz do projeto e preencha as variáveis abaixo:
+
+${fenced("env", data.envVars)}`);
+      }
+
+      if (checked("secUsage")) {
+        sections.push(`## Como usar
+
+${data.usage || "Depois de iniciar o projeto, acesse a aplicação localmente e siga o fluxo principal da interface. Ajuste esta seção com o passo a passo real do seu sistema."}`);
+      }
+
+      if (data.buildCmd) {
+        sections.push(`## Build
+
+${fenced("bash", data.buildCmd)}`);
+      }
+
+      if (checked("secTests") && data.testCmd) {
+        sections.push(`## Testes
+
+${fenced("bash", data.testCmd)}`);
+      }
+
+      if (checked("secStructure") && data.structure) {
+        sections.push(`## Estrutura
+
+${fenced("", data.structure)}`);
+      }
+
+      if (checked("secRoadmap")) {
+        sections.push(`## Roadmap
+
+${mdList(data.roadmap, [
+  "[ ] Melhorar documentação",
+  "[ ] Ajustar responsividade",
+  "[ ] Criar testes automatizados"
+])}`);
+      }
+
+      if (checked("secContrib")) {
+        sections.push(`## Contribuição
+
+Contribuições são bem-vindas.
+
+1. Faça um fork do projeto
+2. Crie uma branch para sua alteração: \`git checkout -b minha-melhoria\`
+3. Commit suas mudanças: \`git commit -m "feat: minha melhoria"\`
+4. Envie para o seu fork: \`git push origin minha-melhoria\`
+5. Abra um Pull Request`);
+      }
+
+      if (checked("secAuthor")) {
+        sections.push(`## Autor
+
+<div align="center">
+  <a href="https://github.com/${data.user}">
+    <img src="https://github.com/${data.user}.png" width="86" style="border-radius: 50%;" alt="${data.author}" />
+    <br />
+    <strong>${data.author}</strong>
+  </a>
+  ${data.authorRole ? `<br /><span>${data.authorRole}</span>` : ""}
+</div>`);
+      }
+
+      if (data.license) {
+        sections.push(`## Licença
+
+Este projeto está sob a licença **${data.license}**. Consulte o arquivo [LICENSE](LICENSE) para mais detalhes.`);
+      }
+
+      sections.push(`<div align="center">
+
+Feito por [${data.author}](https://github.com/${data.user})
+
+</div>`);
+
+      generatedMarkdown = sections.join("\n\n---\n\n").trim() + "\n";
+
+      $("emptyState").style.display = "none";
+      $("markdownOutput").textContent = generatedMarkdown;
+      renderPreview(generatedMarkdown);
+      showTab(activeTab);
+      showToast("README gerado.");
+
+      window.setTimeout(() => {
+        $("outputSection").scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 120);
+    }
+
+    function renderPreview(markdown) {
+      const escaped = markdown
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+
+      let html = escaped
+        .replace(/```([\w-]*)\n([\s\S]*?)```/g, (_, lang, code) => `<pre><code>${code}</code></pre>`)
+        .replace(/^###### (.*$)/gim, "<h6>$1</h6>")
+        .replace(/^##### (.*$)/gim, "<h5>$1</h5>")
+        .replace(/^#### (.*$)/gim, "<h4>$1</h4>")
+        .replace(/^### (.*$)/gim, "<h3>$1</h3>")
+        .replace(/^## (.*$)/gim, "<h2>$1</h2>")
+        .replace(/^# (.*$)/gim, "<h1>$1</h1>")
+        .replace(/\*\*(.*?)\*\*/gim, "<strong>$1</strong>")
+        .replace(/`([^`\n]+)`/gim, "<code>$1</code>")
+        .replace(/!\[([^\]]*)\]\(([^)]+)\)/gim, '<img src="$2" alt="$1" />')
+        .replace(/\[([^\]]+)\]\(([^)]+)\)/gim, '<a href="$2" target="_blank" rel="noreferrer">$1</a>')
+        .replace(/^---$/gim, "<hr />")
+        .replace(/^&gt; (.*$)/gim, "<blockquote>$1</blockquote>")
+        .replace(/&lt;div align="center"&gt;([\s\S]*?)&lt;\/div&gt;/gim, '<div class="center">$1</div>');
+
+      html = html
+        .split(/\n{2,}/)
+        .map((block) => {
+          const trimmed = block.trim();
+          if (!trimmed) return "";
+
+          if (/^<(h\d|pre|ul|ol|li|hr|div|blockquote)/i.test(trimmed)) {
+            return trimmed;
+          }
+
+          if (/^- /m.test(trimmed)) {
+            const items = trimmed
+              .split("\n")
+              .filter(Boolean)
+              .map((line) => line.replace(/^- (.*)/, "<li>$1</li>"))
+              .join("");
+            return `<ul>${items}</ul>`;
+          }
+
+          if (/^\d+\. /m.test(trimmed)) {
+            const items = trimmed
+              .split("\n")
+              .filter(Boolean)
+              .map((line) => line.replace(/^\d+\. (.*)/, "<li>$1</li>"))
+              .join("");
+            return `<ol>${items}</ol>`;
+          }
+
+          return `<p>${trimmed.replace(/\n/g, "<br>")}</p>`;
+        })
+        .join("");
+
+      $("previewOutput").innerHTML = html;
+    }
+
+    function showTab(tab) {
+      activeTab = tab;
+      document.querySelectorAll(".tab").forEach((button) => {
+        button.classList.toggle("active", button.dataset.tab === tab);
+      });
+
+      $("codeArea").classList.toggle("active", tab === "markdown" && !!generatedMarkdown);
+      $("previewArea").classList.toggle("active", tab === "preview" && !!generatedMarkdown);
+    }
+
+    async function copyMarkdown() {
+      if (!generatedMarkdown) {
+        showToast("Gere o README primeiro.");
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(generatedMarkdown);
+        showToast("Markdown copiado.");
+      } catch (error) {
+        const area = document.createElement("textarea");
+        area.value = generatedMarkdown;
+        document.body.appendChild(area);
+        area.select();
+        document.execCommand("copy");
+        area.remove();
+        showToast("Markdown copiado.");
+      }
+    }
+
+    function downloadMarkdown() {
+      if (!generatedMarkdown) {
+        showToast("Gere o README primeiro.");
+        return;
+      }
+
+      const blob = new Blob([generatedMarkdown], { type: "text/markdown;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = "README.md";
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      URL.revokeObjectURL(url);
+      showToast("README.md baixado.");
+    }
+
+    function saveDraft() {
+      const data = {};
+      document.querySelectorAll("input, textarea, select").forEach((field) => {
+        if (!field.id) return;
+        data[field.id] = field.type === "checkbox" ? field.checked : field.value;
+      });
+
+      localStorage.setItem("readme-generator-draft", JSON.stringify(data));
+      showToast("Rascunho salvo no navegador.");
+    }
+
+    function loadDraft() {
+      const raw = localStorage.getItem("readme-generator-draft");
+      if (!raw) return;
+
+      try {
+        const data = JSON.parse(raw);
+        Object.entries(data).forEach(([id, storedValue]) => {
+          const field = $(id);
+          if (!field) return;
+
+          if (field.type === "checkbox") {
+            field.checked = Boolean(storedValue);
+          } else {
+            field.value = storedValue;
+          }
+        });
+
+        syncChips();
+        updateProfile();
+      } catch (error) {
+        localStorage.removeItem("readme-generator-draft");
+      }
+    }
+
+    function clearForm() {
+      const keepDefaults = {
+        packageManager: "npm",
+        prerequisites: "Node.js 18+",
+        installCmd: "npm install",
+        devCmd: "npm run dev",
+        buildCmd: "npm run build",
+        license: "MIT",
+        status: "development",
+        projectType: "web"
+      };
+
+      document.querySelectorAll("input, textarea, select").forEach((field) => {
+        if (!field.id) return;
+
+        if (field.type === "checkbox") {
+          field.checked = ["secFeatures", "secInstall", "secEnv", "secUsage", "secContrib", "secAuthor", "badgeLicense", "badgeStars"].includes(field.id);
+          return;
+        }
+
+        field.value = keepDefaults[field.id] || "";
+      });
+
+      localStorage.removeItem("readme-generator-draft");
+      generatedMarkdown = "";
+      $("markdownOutput").textContent = "";
+      $("previewOutput").innerHTML = "";
+      $("emptyState").style.display = "block";
+      $("codeArea").classList.remove("active");
+      $("previewArea").classList.remove("active");
+      syncChips();
+      updateProfile();
+      showToast("Formulário limpo.");
+    }
+
+    function syncChips() {
+      document.querySelectorAll(".chip").forEach((chip) => {
+        const input = chip.querySelector("input");
+        chip.classList.toggle("active", input.checked);
+      });
+    }
+
+    function updateProfile() {
+      const user = value("githubUser").replace(/^@/, "");
+      const author = value("authorName") || user || "Perfil do README";
+      const role = value("authorRole") || (user ? `github.com/${user}` : "Preencha seu usuário do GitHub para visualizar.");
+
+      $("profileName").textContent = author || "Perfil do README";
+      $("profileMeta").textContent = role;
+
+      const img = $("avatarImg");
+      const fallback = $("avatarFallback");
+
+      if (user) {
+        img.src = `https://github.com/${user}.png`;
+        img.style.display = "block";
+        fallback.style.display = "none";
+      } else {
+        img.removeAttribute("src");
+        img.style.display = "none";
+        fallback.style.display = "inline";
+      }
+    }
+
+    function updateCommandsFromManager() {
+      const manager = value("packageManager");
+      const preset = commandPresets[manager];
+      $("installCmd").value = preset.install;
+      $("devCmd").value = preset.dev;
+      $("buildCmd").value = preset.build;
+
+      if (value("testCmd")) {
+        $("testCmd").value = preset.test;
+      }
+    }
+
+    function showToast(message) {
+      const toast = $("toast");
+      toast.textContent = message;
+      toast.classList.add("show");
+
+      window.clearTimeout(showToast.timer);
+      showToast.timer = window.setTimeout(() => {
+        toast.classList.remove("show");
+      }, 2400);
+    }
+
+    document.querySelectorAll(".chip").forEach((chip) => {
+      chip.addEventListener("click", () => {
+        window.setTimeout(syncChips, 0);
+      });
+    });
+
+    document.querySelectorAll(".tab").forEach((button) => {
+      button.addEventListener("click", () => showTab(button.dataset.tab));
+    });
+
+    $("generateBtn").addEventListener("click", generateReadme);
+    $("copyBtn").addEventListener("click", copyMarkdown);
+    $("downloadBtn").addEventListener("click", downloadMarkdown);
+    $("saveBtn").addEventListener("click", saveDraft);
+    $("clearBtn").addEventListener("click", clearForm);
+    $("packageManager").addEventListener("change", updateCommandsFromManager);
+    $("githubUser").addEventListener("input", updateProfile);
+    $("authorName").addEventListener("input", updateProfile);
+    $("authorRole").addEventListener("input", updateProfile);
+
+    requiredFields.forEach((id) => {
+      $(id).addEventListener("input", () => {
+        $(id).style.borderColor = "";
+      });
+    });
+
+    loadDraft();
+    syncChips();
+    showTab("markdown");
+  </script>
+</body>
+</html>
