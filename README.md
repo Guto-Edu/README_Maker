@@ -73,7 +73,7 @@ O **Readme Maker** nasceu para acelerar essa parte sem transformar a documentaç
 Quando publicado com GitHub Pages, o projeto pode ser acessado pelo navegador:
 
 ```txt
-https://dudadepb6.github.io/readme-maker/
+https://guto-edu.github.io/README_Maker
 ```
 
 > Se você usar outro nome de repositório, troque `readme-maker` na URL pelo nome correto.
@@ -87,7 +87,7 @@ Como o projeto é feito com HTML, CSS e JavaScript puro, você não precisa inst
 **Clone o projeto**
 
 ```bash
-git clone https://github.com/dudadepb6/readme-maker.git
+git clone https://github.com/Guto-Edu/README_Maker
 cd readme-maker
 ```
 
@@ -180,7 +180,7 @@ git init
 git add .
 git commit -m "feat: adiciona gerador de readme"
 git branch -M main
-git remote add origin https://github.com/dudadepb6/readme-maker.git
+git remote add origin https://github.com/Guto-Edu/README_Maker
 git push -u origin main
 ```
 
@@ -200,7 +200,7 @@ No repositório:
 Depois disso, o GitHub vai gerar uma URL parecida com:
 
 ```txt
-https://dudadepb6.github.io/readme-maker/
+https://guto-edu.github.io/README_Maker/
 ```
 
 ---
@@ -272,8 +272,8 @@ Antes de abrir um Pull Request, confira:
 ## Autor
 
 <div align="center">
-  <a href="https://github.com/dudadepb6">
-    <img src="https://github.com/dudadepb6.png" width="86" style="border-radius: 50%;" alt="Maria Eduarda" />
+  <a href="https://github.com/Guto-Edu">
+    <img src="https://github.com/Guto-Edu.png" width="86" style="border-radius: 50%;" alt="Guto Eduardo" />
     <br />
     <strong>Maria Eduarda</strong>
   </a>
@@ -293,7 +293,7 @@ Consulte o arquivo [LICENSE](LICENSE) para mais detalhes.
 
 <div align="center">
 
-Feito por [Maria Eduarda](https://github.com/dudadepb6)
+Feito por [Guto Eduardo](https://github.com/Guto-Edu)
 
 Se esse projeto te ajudou, deixe uma estrela no repositório.
 
