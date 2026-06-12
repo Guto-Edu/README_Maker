@@ -275,10 +275,10 @@ Antes de abrir um Pull Request, confira:
   <a href="https://github.com/Guto-Edu">
     <img src="https://github.com/Guto-Edu.png" width="86" style="border-radius: 50%;" alt="Guto Eduardo" />
     <br />
-    <strong>Maria Eduarda</strong>
+    <strong>Guto Eduardo</strong>
   </a>
   <br />
-  <span>Criadora do Readme Maker</span>
+  <span>Criador do Readme Maker</span>
 </div>
 
 ---
